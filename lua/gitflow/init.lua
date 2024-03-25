@@ -206,6 +206,10 @@ end
 --   main_branch = main_branch:gsub('^%s*(.-)%s*$', '%1')
 --   return main_branch
 -- end
+-- end
+-- end
+-- end
+-- end
 
 local function push(branch)
   local current_branch = get_git_branch()
