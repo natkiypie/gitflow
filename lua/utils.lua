@@ -1,5 +1,12 @@
 local M = {}
 
+-- clear commandline
+function M.clear_cmdline()
+  if vim.opt.cmdheight._value ~= 0 then
+    vim.cmd 'normal! :'
+  end
+end
+
 -- parse file path from full file path
 function M.parse_path(input)
   local pattern = 'lua/gitflow/.+'

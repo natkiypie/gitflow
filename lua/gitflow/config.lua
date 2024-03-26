@@ -1,17 +1,14 @@
 local config = {}
 
 config.options = {
+  -- ADD OPTIONS HERE
   mappings = { 'c', 'h', 'j', 'k', 'l', 'p', 'q', 's', 'x', 'X' },
+  test = false,
 }
 
--- THIS IS HOW USER CAN SET CUSTOM OPTIONS & IS FOUND IN INIT/SETUP:
--- function gitflow.setup(custom_opts)
---    config.set_options(custom_opts)
--- end
-
--- function config.set_options(custom_opts)
---   config.options = vim.tbl_deep_extend('force', config.options, custom_opts or {})
--- end
+function config.set_options(custom_opts)
+  config.options = vim.tbl_deep_extend('force', config.options, custom_opts or {})
+end
 
 local function generate_default_mappings(custom_mappings)
   custom_mappings = custom_mappings and custom_mappings or {}

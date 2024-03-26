@@ -2,7 +2,7 @@ local Gitflow = {}
 
 local utils = require 'utils'
 local config = require 'gitflow.config'
-local list, orig, skipped_files
+local list, opts, orig, skipped_files
 
 local function plugin_state()
   local running = false
@@ -100,172 +100,6 @@ local function quit()
   reset_plugin()
 end
 
--- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING
-
-local function get_git_branches()
-  local branches = vim.fn.systemlist 'git branch --list'
-  local cleaned_branches = {}
-  for _, branch in ipairs(branches) do
-    local cleaned_branch = branch:gsub('%*%s*', ''):gsub('^%s*(.-)%s*$', '%1')
-    table.insert(cleaned_branches, cleaned_branch)
-  end
-  return cleaned_branches
-end
-
--- function M.is_git_repo()
---   return not set_is_empty(find_git_repo())
--- end
-
--- function M.clear_cmdline()
---   if vim.opt.cmdheight._value ~= 0 then
---     vim.cmd 'normal! :'
---   end
--- end
-
--- function M.git_working_tree_clean()
---   local status = vim.fn.systemlist { 'git', 'status', '--porcelain=v1' }
---   return set_is_empty(status)
--- end
-
--- function M.get_git_branch()
---   local branch = vim.fn.system "git branch --show-current 2> /dev/null | tr -d '\n'"
---   if branch ~= '' then
---     return branch
---   end
--- end
-
--- usercmd('GitMergeUpdate', function()
---   if not userfn.is_git_repo() then
---     return
---   end
---   userfn.clear_cmdline()
---   if not userfn.git_working_tree_clean() then
---     return vim.notify('There are still changes not staged for commit', vim.log.levels.INFO, {})
---   end
---   if userfn.get_git_branch() == 'update' then
---     vim.cmd [[
---       Git checkout main
---       Git merge update
---       Git push
---       Git checkout update
---     ]]
---   else
---     return vim.notify('Not on branch update', vim.log.levels.INFO, {})
---   end
--- end, {})
-
--- local function find_git_repo()
---   local git_repo = vim.fs.find('.git', {
---     upward = true,
---     -- stop = vim.uv.os_homedir(),
---     stop = vim.loop.os_homedir(),
---     type = 'directory',
---     path = vim.fs.dirname(vim.api.nvim_buf_get_name(0)),
---   })
---   return git_repo
--- end
-
--- local function is_git_repo()
---   return not vim.tbl_isempty(find_git_repo())
--- end
-
--- local function clear_cmdline()
---   if vim.opt.cmdheight._value ~= 0 then
---     vim.cmd 'normal! :'
---   end
--- end
-
--- local function git_working_tree_clean()
---   local status = vim.fn.systemlist { 'git', 'status', '--porcelain=v1' }
---   return vim.tbl_is_empty(status)
--- end
-
--- local function get_git_branch()
---   local branch = vim.fn.system "git branch --show-current 2> /dev/null | tr -d '\n'"
---   if branch ~= '' then
---     return branch
---   end
--- end
-
--- local function get_git_branch()
---   local branch = vim.fn.system "git branch --show-current 2> /dev/null | tr -d '\n'"
---   if branch ~= '' then
---     return branch
---   end
--- end
-
-local function get_git_branch()
-  local branch = vim.fn.system 'git rev-parse --abbrev-ref HEAD'
-  branch = branch:gsub('^%s*(.-)%s*$', '%1')
-  return branch
-end
-
--- local function get_main_git_branch()
---   local main_branch_ref = vim.fn.system 'git symbolic-ref --short refs/remotes/origin/HEAD'
---   local main_branch = main_branch_ref:match '.*/(.*)'
---   main_branch = main_branch:gsub('^%s*(.-)%s*$', '%1')
---   return main_branch
--- end
-
-local function push(branch)
-  local current_branch = get_git_branch()
-  vim.cmd(string.gsub('Git checkout *', '*', branch))
-  vim.cmd(string.gsub('Git merge *', '*', current_branch))
-  vim.cmd 'Git push'
-  vim.cmd(string.gsub('Git checkout *', '*', current_branch))
-end
-
-function Gitflow.return_branch()
-  local line = vim.fn.line '.'
-  local branch = vim.fn.getline(line)
-  if get_git_branch() == 'main' or get_git_branch() == 'master' then
-    vim.cmd 'Git push'
-  else
-    push(branch)
-  end
-  vim.cmd 'close'
-end
-
-local function create_floating_window()
-  local branches = get_git_branches()
-  local content = {
-    'Select a branch to merge into:',
-    '',
-  }
-  for _, branch in ipairs(branches) do
-    table.insert(content, branch)
-  end
-  local max_length = 0
-  for _, line in ipairs(content) do
-    max_length = math.max(max_length, #line)
-  end
-  local width = max_length + 2 -- Add padding
-  local height = #content
-  local row = 1
-  local col = math.floor((vim.o.columns - width) / 2)
-  local opts = {
-    relative = 'editor',
-    width = width,
-    height = height,
-    row = row,
-    col = col,
-    style = 'minimal',
-    border = 'single',
-  }
-  local bufnr = vim.api.nvim_create_buf(false, true)
-  local winid = vim.api.nvim_open_win(bufnr, true, opts)
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, content)
-  vim.api.nvim_win_set_cursor(winid, { 3, 0 })
-  vim.api.nvim_buf_set_option(bufnr, 'modifiable', false)
-  vim.api.nvim_buf_set_keymap(
-    bufnr,
-    'n',
-    '<CR>',
-    "<Cmd>lua require('gitflow').return_branch()<CR>",
-    { noremap = true, silent = true }
-  )
-end
-
 local function create_commit_autocmd(fn)
   local group = vim.api.nvim_create_augroup('Gitflow', { clear = true })
   vim.api.nvim_create_autocmd('BufWinLeave', {
@@ -273,9 +107,6 @@ local function create_commit_autocmd(fn)
     callback = function()
       vim.schedule(function()
         fn()
-        if fn == quit then
-          create_floating_window()
-        end
       end)
     end,
     group = group,
@@ -394,13 +225,6 @@ function Gitflow.start()
   initialize()
 end
 
--- function Gitflow.setup(custom_opts)
---   -- THE FOLLOWING WILL GO IN SETUP FUNCTION
---   -- config.set_options(custom_opts)
---   -- opts = config.options
---   config.set_mappings()
--- end
-
 function Gitflow.next_file()
   local id = utils.get_file_path()
   run(list[id].next)
@@ -473,9 +297,19 @@ function Gitflow.quit()
   quit()
 end
 
+function Gitflow.setup(custom_opts)
+  config.set_options(custom_opts)
+  opts = config.options
+end
+
 -- Print
 function Gitflow.print()
-  print 'lo and behold'
+  -- print 'lo and behold'
+  if opts.test then
+    print "it's alive!"
+  else
+    print 'not working'
+  end
 end
 
 return Gitflow
