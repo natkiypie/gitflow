@@ -158,8 +158,11 @@ local function has_skipped_files()
 end
 
 local function commit_with_action(action)
+  if not opts.loop then
+    action = quit
+  end
   create_commit_autocmd(action)
-  vim.cmd 'Git commit'
+  vim.cmd 'Git commit | startinsert'
 end
 
 local function handle_last_file(id)
@@ -167,12 +170,16 @@ local function handle_last_file(id)
   if vim.tbl_isempty(utils.get_staged_files()) then
     return quit()
   end
-  local action = has_skipped_files() and reinitialize_list or quit
-  commit_with_action(action)
+  if opts.commit then
+    local action = has_skipped_files() and reinitialize_list or quit
+    return commit_with_action(action)
+  end
+  quit()
 end
 
 local function mark_skipped(hunk)
   local bufnr = vim.api.nvim_get_current_buf()
+  vim.fn.sign_define('Skip', { text = opts.skip_symbol, texthl = 'ErrorMsg' })
   if type(hunk) == 'number' then
     utils.add_sign(bufnr, hunk)
   elseif type(hunk) == 'table' then
@@ -202,10 +209,12 @@ local function load_bufs(files)
 end
 
 local function initialize()
+  if opts.track_untracked then
+    utils.track_untracked()
+  end
   local files = utils.get_modified_files()
   if vim.tbl_isempty(files) then
-    print 'NO MODIFIED FILES'
-    return
+    return vim.notify('There are no hunks left to stage.', vim.log.levels.WARN, {})
   end
   if not plugin_started() then
     return
@@ -290,7 +299,7 @@ function Gitflow.stage()
 end
 
 function Gitflow.commit()
-  vim.cmd 'Git commit'
+  vim.cmd 'Git commit | startinsert'
 end
 
 function Gitflow.quit()
@@ -304,12 +313,7 @@ end
 
 -- Print
 function Gitflow.print()
-  -- print 'lo and behold'
-  if opts.test then
-    print "it's alive!"
-  else
-    print 'not working'
-  end
+  print 'lo and behold'
 end
 
 return Gitflow

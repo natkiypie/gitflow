@@ -1,9 +1,12 @@
 local config = {}
 
 config.options = {
-  -- ADD OPTIONS HERE
+  commit = true,
+  loop = true,
   mappings = { 'c', 'h', 'j', 'k', 'l', 'p', 'q', 's', 'x', 'X' },
-  test = false,
+  push = true,
+  skip_symbol = 'x',
+  track_untracked = false,
 }
 
 function config.set_options(custom_opts)

@@ -99,7 +99,8 @@ function M.set_cursor_position(lnum)
 end
 
 -- Track untracked files
-function M.track(untracked_files)
+function M.track_untracked()
+  local untracked_files = vim.fn.systemlist 'git ls-files --others --exclude-standard'
   for _, u in ipairs(untracked_files) do
     vim.cmd(string.gsub('Git add -N *', '*', u))
   end
@@ -160,24 +161,22 @@ end
 
 -- Add sign to gutter
 function M.add_sign(bufnr, lnum)
-  vim.fn.sign_define('MySign', { text = 'x', texthl = 'ErrorMsg' })
-  vim.fn.sign_place(0, 'myGroup', 'MySign', bufnr, { lnum = lnum, priority = 99 })
+  vim.fn.sign_place(0, 'Gitflow', 'Skip', bufnr, { lnum = lnum, priority = 99 })
 end
 
 -- Add signs to gutter
 function M.add_signs(bufnr, lnums)
-  vim.fn.sign_define('MySign', { text = 'x', texthl = 'ErrorMsg' })
   local lines = {}
   for i = lnums[1], lnums[2] do
     table.insert(lines, i)
   end
   for _, line_num in ipairs(lines) do
-    vim.fn.sign_place(0, 'myGroup', 'MySign', bufnr, { lnum = line_num, priority = 99 })
+    vim.fn.sign_place(0, 'Gitflow', 'Skip', bufnr, { lnum = line_num, priority = 99 })
   end
 end
 
 function M.remove_all_signs()
-  vim.fn.sign_unplace 'myGroup'
+  vim.fn.sign_unplace 'Gitflow'
 end
 
 -- Create deep copy of table
