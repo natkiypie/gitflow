@@ -1,13 +1,26 @@
 local M = {}
 
--- clear commandline
+-- Get get window's background color
+function M.get_background_color()
+  return vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.hlID 'Normal'), 'bg#')
+end
+
+-- Validate table's keys hold values
+function M.validate_table_option(table_option, key1, key2)
+  if table_option[key1] and table_option[key2] then
+    return true
+  end
+  return false
+end
+
+-- Clear commandline
 function M.clear_cmdline()
   if vim.opt.cmdheight._value ~= 0 then
     vim.cmd 'normal! :'
   end
 end
 
--- parse file path from full file path
+-- Parse file path from full file path
 function M.parse_path(input)
   local pattern = 'lua/gitflow/.+'
   return string.match(input, pattern)

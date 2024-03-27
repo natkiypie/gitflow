@@ -1,16 +1,23 @@
 local config = {}
+local utils = require 'utils'
 
 config.options = {
   commit = true,
   loop = true,
   mappings = { 'c', 'h', 'j', 'k', 'l', 'p', 'q', 's', 'x', 'X' },
-  push = true,
-  skip_symbol = 'x',
+  push = {
+    working_branch = nil,
+    upstream_branch = nil,
+  },
+  skip_sign = '│',
+  skip_sign_color = utils.get_background_color(),
   track_untracked = false,
 }
 
 function config.set_options(custom_opts)
   config.options = vim.tbl_deep_extend('force', config.options, custom_opts or {})
+  config.options.push = utils.validate_table_option(config.options.push, 'working_branch', 'upstream_branch')
+    and config.options.push
 end
 
 local function generate_default_mappings(custom_mappings)
