@@ -245,4 +245,67 @@ function M.delete_list_node(l, key)
   l[key] = nil
 end
 
+local function get_number_from_string(str)
+  local pattern = '%d+'
+  local number = string.match(str, pattern)
+  return tonumber(number)
+end
+
+function M.parse_selection(selection, responses)
+  return responses[2][get_number_from_string(selection)]
+end
+
+local function restrict_cursor_movement(start_line)
+  local group = vim.api.nvim_create_augroup('Gitflow', { clear = true })
+  vim.api.nvim_create_autocmd('CursorMoved', {
+    pattern = '*',
+    callback = function()
+      if vim.fn.line '.' < start_line then
+        vim.fn.cursor(start_line, 1)
+      end
+    end,
+    group = group,
+  })
+end
+
+function M.create_floating_window(question, responses, fn)
+  local content = {
+    question,
+    '',
+  }
+  for _, response in ipairs(responses[1]) do
+    table.insert(content, response)
+  end
+  local max_length = 0
+  for _, line in ipairs(content) do
+    max_length = math.max(max_length, #line)
+  end
+  local width = max_length + 2
+  local height = #content
+  local row = 1
+  local col = math.floor((vim.o.columns - width) / 2)
+  local options = {
+    relative = 'editor',
+    width = width,
+    height = height,
+    row = row,
+    col = col,
+    style = 'minimal',
+    border = 'single',
+  }
+  local bufnr = vim.api.nvim_create_buf(false, true)
+  local winid = vim.api.nvim_open_win(bufnr, true, options)
+  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, content)
+  vim.api.nvim_win_set_cursor(winid, { 3, 0 })
+  restrict_cursor_movement(#content - (#responses[1] - 1))
+  vim.api.nvim_buf_set_option(bufnr, 'modifiable', false)
+  vim.api.nvim_buf_set_keymap(
+    bufnr,
+    'n',
+    '<CR>',
+    "<Cmd>lua require('gitflow')." .. fn .. '(' .. vim.inspect(responses) .. ')<CR>',
+    { noremap = true, silent = true }
+  )
+end
+
 return M

@@ -319,6 +319,8 @@ function Gitflow.setup(custom_opts)
   opts = config.options
 end
 
+-- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING
+
 local function get_working_branch()
   local branch = vim.fn.system "git branch --show-current 2> /dev/null | tr -d '\n'"
   if branch ~= '' then
@@ -330,80 +332,33 @@ local function on_working_branch()
   return opts.push['working_branch'] == get_working_branch()
 end
 
-function Gitflow.return_selection()
+function Gitflow.return_selection(responses)
   local line = vim.fn.line '.'
   local selection = vim.fn.getline(line)
-  if selection == 'yes' then
-    print 'cool :)'
-  else
-    print 'you suck.'
-  end
-end
-
-local function restrict_cursor_movement(start_line)
-  local group = vim.api.nvim_create_augroup('Gitflow', { clear = true })
-  vim.api.nvim_create_autocmd('CursorMoved', {
-    pattern = '*',
-    callback = function()
-      if vim.fn.line '.' < start_line then
-        vim.fn.cursor(start_line, 1)
-      end
-    end,
-    group = group,
-  })
-end
-
-local function create_floating_window(question, responses)
-  local content = {
-    question,
-    '',
-  }
-  for _, response in ipairs(responses) do
-    table.insert(content, response)
-  end
-  local max_length = 0
-  for _, line in ipairs(content) do
-    max_length = math.max(max_length, #line)
-  end
-  local width = max_length + 2
-  local height = #content
-  local row = 1
-  local col = math.floor((vim.o.columns - width) / 2)
-  local options = {
-    relative = 'editor',
-    width = width,
-    height = height,
-    row = row,
-    col = col,
-    style = 'minimal',
-    border = 'single',
-  }
-  local bufnr = vim.api.nvim_create_buf(false, true)
-  local winid = vim.api.nvim_open_win(bufnr, true, options)
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, content)
-  vim.api.nvim_win_set_cursor(winid, { 3, 0 })
-  restrict_cursor_movement(#content - (#responses - 1))
-  vim.api.nvim_buf_set_option(bufnr, 'modifiable', false)
-  vim.api.nvim_buf_set_keymap(
-    bufnr,
-    'n',
-    '<CR>',
-    "<Cmd>lua require('gitflow').return_selection()<CR>",
-    { noremap = true, silent = true }
-  )
+  print(utils.parse_selection(selection, responses))
 end
 
 -- Print
 function Gitflow.print()
-  local responses = {
-    '1. switch branches to "' .. opts.push['working_branch'] .. '"',
-    '2. set working_branch to "' .. get_working_branch() .. '"',
-    "3. set gitflow's push option to false",
-    '4. quit',
-  }
   local question = 'You\'re not on branch "' .. opts.push['working_branch'] .. '". What would you like to do?'
+
+  local responses = {
+    {
+      '1. switch branches to "' .. opts.push['working_branch'] .. '"',
+      '2. set working_branch to "' .. get_working_branch() .. '"',
+      "3. set gitflow's push option to false",
+      '4. quit',
+    },
+    {
+      'function 1',
+      'function 2',
+      'function 3',
+      'function 4',
+    },
+  }
+
   if not on_working_branch() then
-    create_floating_window(question, responses)
+    utils.create_floating_window(question, responses, 'return_selection')
   end
 end
 
