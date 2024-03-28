@@ -151,7 +151,7 @@ local function has_skipped_hunks(id)
 end
 
 local function stage_hunk(bufnr, hunks, curpos)
-  vim.cmd 'Gitsigns stage_hunk'
+  vim.cmd 'silent Gitsigns stage_hunk'
   local position = { bufnr, 0, 0 }
   if hunks[curpos] and hunks[curpos].next then
     position[2] = hunks[curpos].next
@@ -180,7 +180,7 @@ local function commit_with_action(action)
     action = quit
   end
   create_commit_autocmd(action)
-  vim.cmd 'Git commit | startinsert'
+  vim.cmd 'silent Git commit | startinsert'
 end
 
 local function handle_last_file(id)
@@ -214,7 +214,7 @@ local function mark_skipped(hunk)
 end
 
 local function handle_last_hunk(id)
-  vim.cmd 'Gitsigns stage_hunk'
+  vim.cmd 'silent Gitsigns stage_hunk'
   if has_skipped_hunks(id) then
     table.insert(skipped_files, id)
   end
@@ -382,7 +382,7 @@ function Gitflow.skip_hunk()
 end
 
 function Gitflow.preview_hunk()
-  vim.cmd 'Gitsigns preview_hunk'
+  vim.cmd 'silent Gitsigns preview_hunk'
 end
 
 function Gitflow.stage()
@@ -400,7 +400,7 @@ function Gitflow.stage()
 end
 
 function Gitflow.commit()
-  vim.cmd 'Git commit | startinsert'
+  vim.cmd 'silent Git commit | startinsert'
 end
 
 function Gitflow.quit()
