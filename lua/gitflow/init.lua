@@ -109,10 +109,10 @@ local function quit()
 end
 
 local function push()
-  vim.cmd(string.gsub('Git checkout *', '*', opts.push['upstream_branch']))
-  vim.cmd(string.gsub('Git merge *', '*', opts.push['working_branch']))
-  vim.cmd 'Git push'
-  vim.cmd(string.gsub('Git checkout *', '*', opts.push['working_branch']))
+  vim.cmd(string.gsub('silent Git checkout *', '*', opts.push['upstream_branch']))
+  vim.cmd(string.gsub('silent Git merge *', '*', opts.push['working_branch']))
+  vim.cmd 'silent Git push'
+  vim.cmd(string.gsub('silent Git checkout *', '*', opts.push['working_branch']))
 end
 
 local function create_commit_autocmd(fn)
@@ -443,7 +443,6 @@ end
 -- Print
 function Gitflow.print()
   print 'lo and behold'
-  -- print(git_working_tree_clean())
 end
 
 return Gitflow
