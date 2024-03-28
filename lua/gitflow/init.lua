@@ -122,7 +122,7 @@ local function create_commit_autocmd(fn)
     callback = function()
       vim.schedule(function()
         fn()
-        if opts.push then
+        if fn == quit and opts.push then
           push()
         end
       end)
@@ -414,9 +414,36 @@ end
 
 -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING
 
+-- local function find_git_repo()
+--   local git_repo = vim.fs.find('.git', {
+--     upward = true,
+--     -- stop = vim.uv.os_homedir(),
+--     stop = vim.loop.os_homedir(),
+--     type = 'directory',
+--     path = vim.fs.dirname(vim.api.nvim_buf_get_name(0)),
+--   })
+--   return git_repo
+-- end
+
+-- local function is_git_repo()
+--   return not vim.tbl_isempty(find_git_repo())
+-- end
+
+-- local function clear_cmdline()
+--   if vim.opt.cmdheight._value ~= 0 then
+--     vim.cmd 'normal! :'
+--   end
+-- end
+
+-- local function git_working_tree_clean()
+--   local status = vim.fn.systemlist { 'git', 'status', '--porcelain=v1' }
+--   return vim.tbl_isempty(status)
+-- end
+
 -- Print
 function Gitflow.print()
   print 'lo and behold'
+  -- print(git_working_tree_clean())
 end
 
 return Gitflow
