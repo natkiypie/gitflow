@@ -119,6 +119,16 @@ function M.get_working_branch()
   end
 end
 
+function M.get_git_branches()
+  local branches = vim.fn.systemlist 'git branch --list'
+  local cleaned_branches = {}
+  for _, branch in ipairs(branches) do
+    local cleaned_branch = branch:gsub('%*%s*', ''):gsub('^%s*(.-)%s*$', '%1')
+    table.insert(cleaned_branches, cleaned_branch)
+  end
+  return cleaned_branches
+end
+
 -- Track untracked files
 function M.track_untracked()
   local untracked_files = vim.fn.systemlist 'git ls-files --others --exclude-standard'

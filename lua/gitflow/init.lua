@@ -365,9 +365,41 @@ end
 
 -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING
 
+local function prepend_numbers(t)
+  local modified_table = {}
+  for i, v in ipairs(t) do
+    modified_table[i] = i .. '. ' .. v
+  end
+  return modified_table
+end
+
+local function build_branch_functions(branches)
+  local fns = {}
+  for _, v in ipairs(branches) do
+    local fn = function()
+      opts.push['upstream_branch'] = v
+      vim.cmd 'close'
+    end
+    table.insert(fns, fn)
+  end
+  return fns
+end
+
+local function change_upstream_branch()
+  local branches = utils.get_git_branches()
+  local fns = build_branch_functions(branches)
+  local ordered_branches = prepend_numbers(branches)
+  local question = 'upstream_branch is set to "' .. opts.push['upstream_branch'] .. '". Set upstream_branch to:'
+  local responses = {
+    ordered_branches,
+    fns,
+  }
+  utils.create_floating_window(question, responses)
+end
+
 -- Print
 function Gitflow.print()
-  print 'lo and behold'
+  change_upstream_branch()
 end
 
 return Gitflow
