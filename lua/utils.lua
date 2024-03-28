@@ -111,6 +111,14 @@ function M.set_cursor_position(lnum)
   vim.fn.setpos('.', { bufnr, lnum, 0 })
 end
 
+-- Get git working branch
+function M.get_working_branch()
+  local branch = vim.fn.system "git branch --show-current 2> /dev/null | tr -d '\n'"
+  if branch ~= '' then
+    return branch
+  end
+end
+
 -- Track untracked files
 function M.track_untracked()
   local untracked_files = vim.fn.systemlist 'git ls-files --others --exclude-standard'

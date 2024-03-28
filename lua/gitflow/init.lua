@@ -238,8 +238,50 @@ local function initialize()
   run(files[1])
 end
 
+local function on_working_branch()
+  return opts.push['working_branch'] == utils.get_working_branch()
+end
+
+local function check_working_branch()
+  if not on_working_branch() then
+    local question = 'You\'re not on branch "' .. opts.push['working_branch'] .. '". What would you like to do?'
+
+    local responses = {
+      {
+        '1. switch branches to "' .. opts.push['working_branch'] .. '"',
+        '2. set working_branch to "' .. utils.get_working_branch() .. '"',
+        "3. set gitflow's push option to false",
+        '4. quit',
+      },
+      {
+        function()
+          print 'switch branches'
+        end,
+        function()
+          print 'set working_branch'
+        end,
+        function()
+          print 'push = false'
+        end,
+        function()
+          print 'quit'
+        end,
+      },
+    }
+    utils.create_floating_window(question, responses)
+  end
+end
+
+function Gitflow.return_selection(responses)
+  local line = vim.fn.line '.'
+  local selection = vim.fn.getline(line)
+  utils.parse_selection(selection, responses)
+end
+
 function Gitflow.start()
-  initialize()
+  -- check_working_branch()
+  -- initialize()
+  print 'WIP'
 end
 
 function Gitflow.next_file()
@@ -321,51 +363,33 @@ end
 
 -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING
 
-local function get_working_branch()
-  local branch = vim.fn.system "git branch --show-current 2> /dev/null | tr -d '\n'"
-  if branch ~= '' then
-    return branch
-  end
-end
-
-local function on_working_branch()
-  return opts.push['working_branch'] == get_working_branch()
-end
-
-function Gitflow.return_selection(responses)
-  local line = vim.fn.line '.'
-  local selection = vim.fn.getline(line)
-  utils.parse_selection(selection, responses)
-end
-
 -- Print
 function Gitflow.print()
-  local question = 'You\'re not on branch "' .. opts.push['working_branch'] .. '". What would you like to do?'
-
-  local responses = {
-    {
-      '1. switch branches to "' .. opts.push['working_branch'] .. '"',
-      '2. set working_branch to "' .. get_working_branch() .. '"',
-      "3. set gitflow's push option to false",
-      '4. quit',
-    },
-    {
-      function()
-        print 'switch branches'
-      end,
-      function()
-        print 'set working_branch'
-      end,
-      function()
-        print 'push = false'
-      end,
-      function()
-        print 'quit'
-      end,
-    },
-  }
-
   if not on_working_branch() then
+    local question = 'You\'re not on branch "' .. opts.push['working_branch'] .. '". What would you like to do?'
+
+    local responses = {
+      {
+        '1. switch branches to "' .. opts.push['working_branch'] .. '"',
+        '2. set working_branch to "' .. utils.get_working_branch() .. '"',
+        "3. set gitflow's push option to false",
+        '4. quit',
+      },
+      {
+        function()
+          print 'switch branches'
+        end,
+        function()
+          print 'set working_branch'
+        end,
+        function()
+          print 'push = false'
+        end,
+        function()
+          print 'quit'
+        end,
+      },
+    }
     utils.create_floating_window(question, responses)
   end
 end
