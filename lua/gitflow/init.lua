@@ -108,6 +108,13 @@ local function quit()
   reset_plugin()
 end
 
+local function push()
+  vim.cmd(string.gsub('Git checkout *', '*', opts.push['upstream_branch']))
+  vim.cmd(string.gsub('Git merge *', '*', opts.push['working_branch']))
+  vim.cmd 'Git push'
+  vim.cmd(string.gsub('Git checkout *', '*', opts.push['working_branch']))
+end
+
 local function create_commit_autocmd(fn)
   local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   vim.api.nvim_create_autocmd('BufWinLeave', {
@@ -115,6 +122,9 @@ local function create_commit_autocmd(fn)
     callback = function()
       vim.schedule(function()
         fn()
+        if opts.push then
+          push()
+        end
       end)
     end,
     group = group,
