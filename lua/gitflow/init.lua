@@ -335,7 +335,7 @@ end
 function Gitflow.return_selection(responses)
   local line = vim.fn.line '.'
   local selection = vim.fn.getline(line)
-  print(utils.parse_selection(selection, responses))
+  utils.parse_selection(selection, responses)
 end
 
 -- Print
@@ -350,15 +350,23 @@ function Gitflow.print()
       '4. quit',
     },
     {
-      'function 1',
-      'function 2',
-      'function 3',
-      'function 4',
+      function()
+        print 'switch branches'
+      end,
+      function()
+        print 'set working_branch'
+      end,
+      function()
+        print 'push = false'
+      end,
+      function()
+        print 'quit'
+      end,
     },
   }
 
   if not on_working_branch() then
-    utils.create_floating_window(question, responses, 'return_selection')
+    utils.create_floating_window(question, responses)
   end
 end
 

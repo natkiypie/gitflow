@@ -252,7 +252,7 @@ local function get_number_from_string(str)
 end
 
 function M.parse_selection(selection, responses)
-  return responses[2][get_number_from_string(selection)]
+  return responses[2][get_number_from_string(selection)]()
 end
 
 local function restrict_cursor_movement(start_line)
@@ -268,7 +268,7 @@ local function restrict_cursor_movement(start_line)
   })
 end
 
-function M.create_floating_window(question, responses, fn)
+function M.create_floating_window(question, responses)
   local content = {
     question,
     '',
@@ -299,13 +299,11 @@ function M.create_floating_window(question, responses, fn)
   vim.api.nvim_win_set_cursor(winid, { 3, 0 })
   restrict_cursor_movement(#content - (#responses[1] - 1))
   vim.api.nvim_buf_set_option(bufnr, 'modifiable', false)
-  vim.api.nvim_buf_set_keymap(
-    bufnr,
-    'n',
-    '<CR>',
-    "<Cmd>lua require('gitflow')." .. fn .. '(' .. vim.inspect(responses) .. ')<CR>',
-    { noremap = true, silent = true }
-  )
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<CR>', '', {
+    callback = function()
+      require('gitflow').return_selection(responses)
+    end,
+  })
 end
 
 return M
