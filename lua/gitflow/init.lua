@@ -244,7 +244,7 @@ end
 
 local function check_working_branch()
   local working_branch = utils.get_working_branch()
-  if opts.push and not on_working_branch() then
+  if not on_working_branch() then
     local question = 'You\'re not on branch "' .. opts.push['working_branch'] .. '". What would you like to do?'
 
     local responses = {
@@ -257,10 +257,12 @@ local function check_working_branch()
         function()
           opts.push['working_branch'] = working_branch
           vim.cmd 'close'
+          initialize()
         end,
         function()
           opts.push = false
           vim.cmd 'close'
+          initialize()
         end,
         function()
           vim.cmd 'close'
@@ -278,9 +280,10 @@ function Gitflow.return_selection(responses)
 end
 
 function Gitflow.start()
-  -- print 'WIP'
-  check_working_branch()
-  -- initialize()
+  if opts.push then
+    return check_working_branch()
+  end
+  initialize()
 end
 
 function Gitflow.next_file()
