@@ -243,28 +243,27 @@ local function on_working_branch()
 end
 
 local function check_working_branch()
-  if not on_working_branch() then
+  local working_branch = utils.get_working_branch()
+  if opts.push and not on_working_branch() then
     local question = 'You\'re not on branch "' .. opts.push['working_branch'] .. '". What would you like to do?'
 
     local responses = {
       {
-        '1. switch branches to "' .. opts.push['working_branch'] .. '"',
-        '2. set working_branch to "' .. utils.get_working_branch() .. '"',
-        "3. set gitflow's push option to false",
-        '4. quit',
+        '1. set working_branch to "' .. working_branch .. '"',
+        "2. set gitflow's push option to false",
+        '3. quit',
       },
       {
         function()
-          print 'switch branches'
+          opts.push['working_branch'] = working_branch
+          vim.cmd 'close'
         end,
         function()
-          print 'set working_branch'
+          opts.push = false
+          vim.cmd 'close'
         end,
         function()
-          print 'push = false'
-        end,
-        function()
-          print 'quit'
+          vim.cmd 'close'
         end,
       },
     }
@@ -279,9 +278,9 @@ function Gitflow.return_selection(responses)
 end
 
 function Gitflow.start()
-  -- check_working_branch()
+  -- print 'WIP'
+  check_working_branch()
   -- initialize()
-  print 'WIP'
 end
 
 function Gitflow.next_file()
@@ -365,33 +364,7 @@ end
 
 -- Print
 function Gitflow.print()
-  if not on_working_branch() then
-    local question = 'You\'re not on branch "' .. opts.push['working_branch'] .. '". What would you like to do?'
-
-    local responses = {
-      {
-        '1. switch branches to "' .. opts.push['working_branch'] .. '"',
-        '2. set working_branch to "' .. utils.get_working_branch() .. '"',
-        "3. set gitflow's push option to false",
-        '4. quit',
-      },
-      {
-        function()
-          print 'switch branches'
-        end,
-        function()
-          print 'set working_branch'
-        end,
-        function()
-          print 'push = false'
-        end,
-        function()
-          print 'quit'
-        end,
-      },
-    }
-    utils.create_floating_window(question, responses)
-  end
+  print 'lo and behold'
 end
 
 return Gitflow
