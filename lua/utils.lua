@@ -20,6 +20,15 @@ function M.clear_cmdline()
   end
 end
 
+-- Prepend numbers to list of strings
+function M.prepend_numbers(t)
+  local modified_table = {}
+  for i, v in ipairs(t) do
+    modified_table[i] = i .. '. ' .. v
+  end
+  return modified_table
+end
+
 -- Parse file path from full file path
 function M.parse_path(input)
   local pattern = 'lua/gitflow/.+'
@@ -274,7 +283,7 @@ function M.parse_selection(selection, responses)
 end
 
 local function restrict_cursor_movement(start_line)
-  local group = vim.api.nvim_create_augroup('Gitflow', { clear = true })
+  local group = vim.api.nvim_create_augroup('RestrictCursor', { clear = true })
   vim.api.nvim_create_autocmd('CursorMoved', {
     pattern = '*',
     callback = function()

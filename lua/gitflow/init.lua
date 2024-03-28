@@ -73,9 +73,17 @@ local function run(id)
   config.set_mappings()
 end
 
-local function delete_augroup()
-  if vim.fn.exists '#Gitflow' == 1 then
-    vim.api.nvim_del_augroup_by_name 'Gitflow'
+local function delete_commit_augroup()
+  if vim.fn.exists '#GitflowCommit' == 1 then
+    vim.api.nvim_del_augroup_by_name 'GitflowCommit'
+  else
+    return
+  end
+end
+
+local function delete_cursor_augroup()
+  if vim.fn.exists '#RestrictCursor' == 1 then
+    vim.api.nvim_del_augroup_by_name 'RestrictCursor'
   else
     return
   end
@@ -93,7 +101,7 @@ local function quit()
   vim.fn.setpos('.', orig.cur)
   vim.cmd 'setlocal buflisted'
   vim.bo.modifiable = true
-  delete_augroup()
+  delete_commit_augroup()
   list = nil
   skipped_files = nil
   reset_mappings()
@@ -101,7 +109,7 @@ local function quit()
 end
 
 local function create_commit_autocmd(fn)
-  local group = vim.api.nvim_create_augroup('Gitflow', { clear = true })
+  local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   vim.api.nvim_create_autocmd('BufWinLeave', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
@@ -146,7 +154,7 @@ local function reinitialize_list()
   list = utils.create_list(skipped_files, data)
   run(skipped_files[1])
   skipped_files = {}
-  delete_augroup()
+  delete_commit_augroup()
 end
 
 local function is_last_file()
@@ -258,19 +266,50 @@ local function check_working_branch()
           opts.push['working_branch'] = working_branch
           vim.cmd 'close'
           initialize()
+          delete_cursor_augroup()
         end,
         function()
           opts.push = false
           vim.cmd 'close'
           initialize()
+          delete_cursor_augroup()
         end,
         function()
           vim.cmd 'close'
+          delete_cursor_augroup()
         end,
       },
     }
     utils.create_floating_window(question, responses)
   end
+end
+
+local function build_branch_functions(branches)
+  local fns = {}
+  for _, v in ipairs(branches) do
+    local fn = function()
+      opts.push['upstream_branch'] = v
+      vim.cmd 'close'
+      delete_cursor_augroup()
+    end
+    table.insert(fns, fn)
+  end
+  return fns
+end
+
+function Gitflow.update_upstream_branch()
+  if not opts.push then
+    return
+  end
+  local branches = utils.get_git_branches()
+  local fns = build_branch_functions(branches)
+  local ordered_branches = utils.prepend_numbers(branches)
+  local question = 'upstream_branch is set to "' .. opts.push['upstream_branch'] .. '". Set upstream_branch to:'
+  local responses = {
+    ordered_branches,
+    fns,
+  }
+  utils.create_floating_window(question, responses)
 end
 
 function Gitflow.return_selection(responses)
@@ -365,41 +404,9 @@ end
 
 -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING -- TESTING
 
-local function prepend_numbers(t)
-  local modified_table = {}
-  for i, v in ipairs(t) do
-    modified_table[i] = i .. '. ' .. v
-  end
-  return modified_table
-end
-
-local function build_branch_functions(branches)
-  local fns = {}
-  for _, v in ipairs(branches) do
-    local fn = function()
-      opts.push['upstream_branch'] = v
-      vim.cmd 'close'
-    end
-    table.insert(fns, fn)
-  end
-  return fns
-end
-
-local function change_upstream_branch()
-  local branches = utils.get_git_branches()
-  local fns = build_branch_functions(branches)
-  local ordered_branches = prepend_numbers(branches)
-  local question = 'upstream_branch is set to "' .. opts.push['upstream_branch'] .. '". Set upstream_branch to:'
-  local responses = {
-    ordered_branches,
-    fns,
-  }
-  utils.create_floating_window(question, responses)
-end
-
 -- Print
 function Gitflow.print()
-  change_upstream_branch()
+  print 'lo and behold'
 end
 
 return Gitflow

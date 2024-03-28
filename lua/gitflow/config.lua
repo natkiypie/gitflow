@@ -4,7 +4,7 @@ local utils = require 'utils'
 config.options = {
   commit = true,
   loop = true,
-  mappings = { 'c', 'h', 'j', 'k', 'l', 'p', 'q', 's', 'x', 'X' },
+  mappings = { 'b', 'c', 'h', 'j', 'k', 'l', 'p', 'q', 's', 'x', 'X' },
   push = {
     working_branch = nil,
     upstream_branch = nil,
@@ -23,6 +23,7 @@ end
 local function generate_default_mappings(custom_mappings)
   custom_mappings = custom_mappings and custom_mappings or {}
   local defaults = {}
+  defaults['b'] = 'update_upstream_branch'
   defaults['c'] = 'commit'
   defaults['h'] = 'prev_file'
   defaults['j'] = 'next_hunk'
