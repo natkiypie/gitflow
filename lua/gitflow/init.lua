@@ -123,9 +123,9 @@ local function create_commit_autocmd(fn)
   vim.api.nvim_create_autocmd('BufWinLeave', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
-      vim.schedule(function()
-        fn()
-      end)
+      -- vim.schedule(function()
+      fn()
+      -- end)
     end,
     group = group,
   })
