@@ -95,6 +95,13 @@ local function reset_mappings()
   end
 end
 
+local function push()
+  vim.cmd(string.gsub('silent Git checkout *', '*', opts.push['upstream_branch']))
+  vim.cmd(string.gsub('silent Git merge *', '*', opts.push['working_branch']))
+  vim.cmd 'silent Git push'
+  vim.cmd(string.gsub('silent Git checkout *', '*', opts.push['working_branch']))
+end
+
 local function quit()
   utils.remove_all_signs()
   vim.api.nvim_win_set_buf(0, orig.buf)
@@ -106,13 +113,9 @@ local function quit()
   skipped_files = nil
   reset_mappings()
   reset_plugin()
-end
-
-local function push()
-  vim.cmd(string.gsub('silent Git checkout *', '*', opts.push['upstream_branch']))
-  vim.cmd(string.gsub('silent Git merge *', '*', opts.push['working_branch']))
-  vim.cmd 'silent Git push'
-  vim.cmd(string.gsub('silent Git checkout *', '*', opts.push['working_branch']))
+  if opts.push then
+    push()
+  end
 end
 
 local function create_commit_autocmd(fn)
@@ -123,9 +126,6 @@ local function create_commit_autocmd(fn)
       vim.schedule(function()
         fn()
       end)
-      if fn == quit and opts.push then
-        push()
-      end
     end,
     group = group,
   })
