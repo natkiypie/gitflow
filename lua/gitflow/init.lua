@@ -100,6 +100,7 @@ local function push()
   vim.cmd(string.gsub('silent Git merge *', '*', opts.push['working_branch']))
   vim.cmd 'silent Git push'
   vim.cmd(string.gsub('silent Git checkout *', '*', opts.push['working_branch']))
+  reset_mappings()
 end
 
 local function quit()
@@ -123,9 +124,9 @@ local function create_commit_autocmd(fn)
   vim.api.nvim_create_autocmd('BufWinLeave', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
-      -- vim.schedule(function()
-      fn()
-      -- end)
+      vim.schedule(function()
+        fn()
+      end)
     end,
     group = group,
   })
