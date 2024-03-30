@@ -121,10 +121,11 @@ local function create_commit_autocmd(fn)
     pattern = 'COMMIT_EDITMSG',
     callback = function()
       vim.schedule(function()
-        fn()
         if fn == quit and opts.push then
           push()
+          return fn()
         end
+        fn()
       end)
     end,
     group = group,
