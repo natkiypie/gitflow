@@ -55,19 +55,9 @@ local function list_orig_buf(id)
   end
 end
 
-local function orig_buf_visited(id)
-  if not vim.tbl_contains(utils.get_modified_files(), get_orig_path()) then
-    return
-  end
-  if id == get_orig_path() then
-    orig.visited = true
-  end
-end
-
 local function run(id)
   vim.cmd(string.gsub('edit path', 'path', id))
   list_orig_buf(id)
-  orig_buf_visited(id)
   vim.bo.modifiable = false
   go_to_first_hunk(id)
   config.set_mappings()
@@ -89,10 +79,9 @@ local function delete_cursor_augroup()
   end
 end
 
-local function reset_mappings()
-  if orig.visited then
-    config.reset_mappings(orig.buf)
-  end
+local function return_file_settings()
+  config.reset_mappings(0)
+  vim.bo.modifiable = true
 end
 
 local function push()
@@ -100,10 +89,10 @@ local function push()
   vim.cmd(string.gsub('silent Git merge *', '*', opts.push['working_branch']))
   vim.cmd 'silent Git push'
   vim.cmd(string.gsub('silent Git checkout *', '*', opts.push['working_branch']))
-  reset_mappings()
 end
 
 local function quit()
+  return_file_settings()
   utils.remove_all_signs()
   vim.api.nvim_win_set_buf(0, orig.buf)
   vim.fn.setpos('.', orig.cur)
@@ -112,7 +101,6 @@ local function quit()
   delete_commit_augroup()
   list = nil
   skipped_files = nil
-  reset_mappings()
   reset_plugin()
   if opts.push then
     push()
@@ -161,6 +149,7 @@ local function stage_hunk(bufnr, hunks, curpos)
 end
 
 local function reinitialize_list()
+  return_file_settings()
   utils.remove_all_signs()
   list = utils.create_list(skipped_files, data)
   run(skipped_files[1])
@@ -223,6 +212,7 @@ local function handle_last_hunk(id)
     handle_last_file(id)
     return true
   else
+    return_file_settings()
     run(list[id].next)
     utils.delete_list_node(list, id)
     return false
@@ -251,7 +241,6 @@ local function initialize()
   orig = {
     buf = vim.api.nvim_get_current_buf(),
     cur = vim.fn.getcurpos(),
-    visited = false,
   }
   load_bufs(files)
   run(files[1])
@@ -337,11 +326,13 @@ function Gitflow.start()
 end
 
 function Gitflow.next_file()
+  return_file_settings()
   local id = utils.get_file_path()
   run(list[id].next)
 end
 
 function Gitflow.prev_file()
+  return_file_settings()
   local id = utils.get_file_path()
   run(list[id].prev)
 end
