@@ -12,6 +12,7 @@ config.options = {
   skip_sign = '│',
   skip_sign_color = utils.get_background_color(),
   track_untracked = false,
+  start_insert = false,
 }
 
 function config.set_options(custom_opts)
