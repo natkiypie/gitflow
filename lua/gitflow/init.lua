@@ -471,7 +471,7 @@ local function commit_autocmd(a)
   })
 end
 
-local function commit_finished(fn, exit_code, _)
+local function commit_finished(exit_code, _)
   if exit_code == 0 then
     print 'Commit successful'
   else
