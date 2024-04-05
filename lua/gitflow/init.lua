@@ -458,13 +458,13 @@ end
 -- end
 
 -- THIS WORKS
-local function commit_autocmd(a, b)
+local function commit_autocmd(a)
   local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   vim.api.nvim_create_autocmd('BufWinLeave', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
       vim.schedule(function()
-        a(b)
+        a()
       end)
     end,
     group = group,
@@ -473,20 +473,19 @@ end
 
 local function commit_finished(fn, exit_code, _)
   if exit_code == 0 then
-    -- fn goes here
-    fn()
+    print 'Commit successful'
   else
-    print 'quitting'
+    print 'Commit failed'
   end
 end
 
-local function test()
-  print 'Commit successful'
-end
+-- local function test()
+--   print 'Commit successful'
+-- end
 
 function Gitflow.print()
   -- print 'lo and behold'
-  commit_autocmd(commit_finished, test)
+  commit_autocmd(commit_finished)
   vim.cmd 'Git commit'
 end
 
