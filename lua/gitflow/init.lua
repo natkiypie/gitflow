@@ -488,7 +488,7 @@ end
 
 -- Setup autocommands to listen for buffer modifications and quitting
 vim.cmd 'autocmd BufWritePost COMMIT_EDITMSG lua require("gitflow").on_commit_message_modified()'
-vim.cmd 'autocmd BufLeave COMMIT_EDITMSG lua require("gitflow").on_commit_message_quit()'
+vim.cmd 'autocmd BufWinLeave COMMIT_EDITMSG lua require("gitflow").on_commit_message_quit()'
 
 -- Function to get the last commit status
 local function get_last_commit_status()
