@@ -479,22 +479,23 @@ function Gitflow.on_commit_message_modified()
 end
 
 function Gitflow.on_commit_message_quit()
-  if vim.api.nvim_get_option_value('modified', { buf = 0 }) then
+  if vim.api.nvim_buf_get_option(0, 'modified') then
     last_commit_status = 'Commit aborted due to unsaved changes'
-  else
+  elseif vim.api.nvim_call_function('line', { 1, '$' }) == 1 then
     last_commit_status = 'Commit aborted without leaving a message'
+  else
+    last_commit_status = 'Commit message saved'
   end
 end
 
 -- Setup autocommands to listen for buffer modifications and quitting
 vim.cmd 'autocmd BufWritePost COMMIT_EDITMSG lua require("gitflow").on_commit_message_modified()'
-vim.cmd 'autocmd BufWinLeave COMMIT_EDITMSG lua require("gitflow").on_commit_message_quit()'
+vim.cmd 'autocmd BufLeave COMMIT_EDITMSG lua require("gitflow").on_commit_message_quit()'
 
 -- Function to get the last commit status
 local function get_last_commit_status()
   return last_commit_status
 end
-
 function Gitflow.print()
   -- print 'lo and behold'
   print(get_last_commit_status())
