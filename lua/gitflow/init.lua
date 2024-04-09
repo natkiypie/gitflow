@@ -491,7 +491,7 @@ end
 local function commit_autocmd()
   local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   vim.api.nvim_create_autocmd('BufWritePost', {
-    pattern = 'CmdlineChanged',
+    pattern = 'COMMIT_EDITMSG',
     callback = function()
       vim.schedule(function()
         on_commit_message_modified()
@@ -504,7 +504,7 @@ end
 local function commit_autocmd_two()
   local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   vim.api.nvim_create_autocmd('BufLeave', {
-    pattern = 'CmdlineChanged',
+    pattern = 'COMMIT_EDITMSG',
     callback = function()
       vim.schedule(function()
         on_commit_message_quit()
@@ -514,16 +514,17 @@ local function commit_autocmd_two()
   })
 end
 
+commit_autocmd()
+commit_autocmd_two()
+
 -- Function to get the last commit status
 local function get_last_commit_status()
-  return last_commit_status
+  print(last_commit_status)
 end
 
 function Gitflow.print()
   -- print 'lo and behold'
-  commit_autocmd()
-  commit_autocmd_two()
-  print(get_last_commit_status())
+  get_last_commit_status()
 end
 
 return Gitflow
