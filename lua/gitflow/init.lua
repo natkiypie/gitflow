@@ -479,7 +479,7 @@ local function on_commit_message_modified()
 end
 
 local function on_commit_message_quit()
-  if vim.api.nvim_buf_get_option(0, 'modified') then
+  if vim.api.nvim_get_option_value('modified', { buf = 0 }) then
     last_commit_status = 'Commit aborted due to unsaved changes'
   elseif vim.api.nvim_call_function('line', { 1, '$' }) == 1 then
     last_commit_status = 'Commit aborted without leaving a message'
