@@ -457,37 +457,47 @@ end
 --   return vim.tbl_isempty(status)
 -- end
 
--- THIS WORKS
-local function commit_autocmd()
-  local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
-  vim.api.nvim_create_autocmd('BufWinLeave', {
-    pattern = 'COMMIT_EDITMSG',
-    -- callback = function()
-    --   vim.schedule(function()
-    --     a()
-    --   end)
-    -- end,
-    command = 'autocmd User FugitiveCommitFinished lua require("gitflow").commit_finished(...)',
-    group = group,
-  })
+-- TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING
+
+-- local function commit_autocmd(a)
+--   local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
+--   vim.api.nvim_create_autocmd({'BufWinLeave'}, {
+--     pattern = 'CmdlineChanged',
+--     callback = function()
+--       vim.schedule(function()
+--         a()
+--       end)
+--     end,
+--     group = group,
+--   })
+-- end
+
+local last_commit_status = ''
+
+function Gitflow.on_commit_message_modified()
+  last_commit_status = 'Commit message modified'
 end
 
-function Gitflow.commit_finished(exit_code, _)
-  if exit_code == 0 then
-    print 'Commit successful'
+function Gitflow.on_commit_message_quit()
+  if vim.api.nvim_buf_get_option(0, 'modified') then
+    last_commit_status = 'Commit aborted due to unsaved changes'
   else
-    print 'Commit failed'
+    last_commit_status = 'Commit aborted without leaving a message'
   end
 end
 
--- local function test()
---   print 'Commit successful'
--- end
+-- Setup autocommands to listen for buffer modifications and quitting
+vim.cmd 'autocmd BufWritePost COMMIT_EDITMSG lua require("gitflow").on_commit_message_modified()'
+vim.cmd 'autocmd BufLeave COMMIT_EDITMSG lua require("gitflow").on_commit_message_quit()'
+
+-- Function to get the last commit status
+local function get_last_commit_status()
+  return last_commit_status
+end
 
 function Gitflow.print()
   -- print 'lo and behold'
-  commit_autocmd()
-  vim.cmd 'Git commit'
+  print(get_last_commit_status())
 end
 
 return Gitflow
