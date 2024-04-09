@@ -479,7 +479,7 @@ local function on_commit_message_modified()
 end
 
 local function on_commit_message_quit()
-  if vim.api.nvim_get_option_value('modified', { buf = 0 }) then
+  if vim.api.nvim_buf_get_option(0, 'modified') then
     last_commit_status = 'Commit aborted due to unsaved changes'
   elseif vim.api.nvim_call_function('line', { 1, '$' }) == 1 then
     last_commit_status = 'Commit aborted without leaving a message'
@@ -489,7 +489,6 @@ local function on_commit_message_quit()
 end
 
 local function commit_autocmd()
-  local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   vim.api.nvim_create_autocmd('BufWritePost', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
@@ -497,12 +496,10 @@ local function commit_autocmd()
         on_commit_message_modified()
       end)
     end,
-    group = group,
   })
 end
 
 local function commit_autocmd_two()
-  local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   vim.api.nvim_create_autocmd('BufLeave', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
@@ -510,7 +507,6 @@ local function commit_autocmd_two()
         on_commit_message_quit()
       end)
     end,
-    group = group,
   })
 end
 
