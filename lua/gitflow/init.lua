@@ -459,68 +459,22 @@ end
 
 -- TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING
 
--- local function commit_autocmd(a)
---   local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
---   vim.api.nvim_create_autocmd({'BufWinLeave'}, {
---     pattern = 'CmdlineChanged',
---     callback = function()
---       vim.schedule(function()
---         a()
---       end)
---     end,
---     group = group,
---   })
--- end
-
-local last_commit_status = ''
-
-local function on_commit_message_modified()
-  last_commit_status = 'Commit message modified'
-end
-
-local function on_commit_message_quit()
-  if vim.api.nvim_buf_get_option(0, 'modified') then
-    last_commit_status = 'Commit aborted due to unsaved changes'
-  elseif vim.api.nvim_call_function('line', { 1, '$' }) == 1 then
-    last_commit_status = 'Commit aborted without leaving a message'
-  else
-    last_commit_status = 'Commit message saved'
-  end
-end
-
-local function commit_autocmd()
+local function create_autocmd()
   vim.api.nvim_create_autocmd('BufWritePost', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
       vim.schedule(function()
-        on_commit_message_modified()
+        utils.clear_cmdline()
+        print 'commit written'
       end)
     end,
   })
-end
-
-local function commit_autocmd_two()
-  vim.api.nvim_create_autocmd('BufLeave', {
-    pattern = 'COMMIT_EDITMSG',
-    callback = function()
-      vim.schedule(function()
-        on_commit_message_quit()
-      end)
-    end,
-  })
-end
-
-commit_autocmd()
-commit_autocmd_two()
-
--- Function to get the last commit status
-local function get_last_commit_status()
-  print(last_commit_status)
 end
 
 function Gitflow.print()
   -- print 'lo and behold'
-  get_last_commit_status()
+  create_autocmd()
+  vim.cmd 'Git commit'
 end
 
 return Gitflow
