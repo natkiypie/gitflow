@@ -1,10 +1,12 @@
 change it up
 i'm going through changes
 Why is it so hard to make it in America
+is this it?
 Why is it so hard
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
 i'm going through changes
+is this it?
 change
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
 Why is it so hard
