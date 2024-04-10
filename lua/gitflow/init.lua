@@ -70,13 +70,6 @@ local function delete_commit_augroup()
   vim.api.nvim_del_augroup_by_name 'GitflowCommit'
 end
 
-local function delete_cursor_augroup()
-  if vim.fn.exists '#RestrictCursor' == 0 then
-    return
-  end
-  vim.api.nvim_del_augroup_by_name 'RestrictCursor'
-end
-
 local function return_file_settings()
   config.reset_mappings(0)
   vim.bo.modifiable = true
@@ -177,7 +170,8 @@ local function commit_with_action(action)
   if not opts.loop then
     action = quit
   end
-  group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
+  -- group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
+  group = vim.api.nvim_create_augroup('GitflowCommit', { clear = false })
   create_push_autocmd()
   create_commit_autocmd(action)
   if opts.start_insert then
@@ -282,17 +276,14 @@ local function check_working_branch()
         opts.working_branch = working_branch
         vim.cmd 'close'
         initialize()
-        delete_cursor_augroup()
       end,
       function()
         opts.push = false
         vim.cmd 'close'
         initialize()
-        delete_cursor_augroup()
       end,
       function()
         vim.cmd 'close'
-        delete_cursor_augroup()
       end,
     },
   }
@@ -305,7 +296,6 @@ local function build_branch_functions(branches)
     local fn = function()
       opts.upstream_branch = v
       vim.cmd 'close'
-      delete_cursor_augroup()
     end
     table.insert(fns, fn)
   end
@@ -455,7 +445,8 @@ end
 
 function Gitflow.print()
   -- print 'lo and behold'
-  print(commitbufwrite)
+  -- print(commitbufwrite)
+  print(vim.fn.exists '#RestrictCursor')
 end
 
 return Gitflow

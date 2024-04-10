@@ -282,8 +282,28 @@ function M.parse_selection(selection, responses)
   return responses[2][get_number_from_string(selection)]()
 end
 
+local function delete_cursor_augroup()
+  if vim.fn.exists '#RestrictCursor' == 0 then
+    return
+  end
+  vim.api.nvim_del_augroup_by_name 'RestrictCursor'
+end
+
+local group
+
+local function unrestrict_cursor_movement()
+  group = vim.api.nvim_create_augroup('RestrictCursor', { clear = false })
+  vim.api.nvim_create_autocmd('BufWinLeave', {
+    pattern = {},
+    callback = function()
+      delete_cursor_augroup()
+    end,
+    group = group,
+  })
+end
+
 local function restrict_cursor_movement(start_line)
-  local group = vim.api.nvim_create_augroup('RestrictCursor', { clear = true })
+  group = vim.api.nvim_create_augroup('RestrictCursor', { clear = false })
   vim.api.nvim_create_autocmd('CursorMoved', {
     pattern = '*',
     callback = function()
@@ -325,6 +345,7 @@ function M.create_floating_window(question, responses)
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, content)
   vim.api.nvim_win_set_cursor(winid, { 3, 0 })
   restrict_cursor_movement(#content - (#responses[1] - 1))
+  unrestrict_cursor_movement()
   vim.api.nvim_buf_set_option(bufnr, 'modifiable', false)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<CR>', '', {
     callback = function()
