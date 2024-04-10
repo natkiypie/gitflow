@@ -464,30 +464,33 @@ end
 
 -- TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING
 
+local commitbufwrite = false
+
 local function test_reinitialize()
   utils.clear_cmdline()
   print 'reinitialize list'
-end
-
-local function test_quit()
-  utils.clear_cmdline()
-  print 'quitting'
 end
 
 local function test_push()
   print 'pushing'
 end
 
-local function commit_autocmd(fn, p)
-  local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
+local function test_quit()
+  utils.clear_cmdline()
+  print 'quitting'
+  if commitbufwrite then
+    test_push()
+  end
+  delete_commit_augroup()
+end
+
+local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
+
+local function commit_autocmd(fn)
   vim.api.nvim_create_autocmd('BufWinLeave', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
       vim.schedule(function()
-        if p then
-          fn()
-          return test_push()
-        end
         fn()
       end)
     end,
@@ -495,24 +498,23 @@ local function commit_autocmd(fn, p)
   })
 end
 
-local function create_autocmd(fn)
+local function create_autocmd()
   vim.api.nvim_create_autocmd('BufWritePost', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
-      if fn == test_quit then
-        commit_autocmd(fn, opts.push)
-      else
-        commit_autocmd(fn, false)
-      end
+      commitbufwrite = opts.push
       -- vim.schedule(function()
       -- end)
     end,
+    group = group,
   })
 end
 
 function Gitflow.print()
   -- print 'lo and behold'
-  create_autocmd(test_quit)
+  -- create_autocmd(test_quit)
+  create_autocmd()
+  commit_autocmd(test_quit)
   vim.cmd 'Git commit'
 end
 
