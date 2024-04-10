@@ -476,12 +476,12 @@ local function test_push()
 end
 
 local function test_quit()
+  delete_commit_augroup()
   utils.clear_cmdline()
   print 'quitting'
   if commitbufwrite then
     test_push()
   end
-  delete_commit_augroup()
 end
 
 local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
