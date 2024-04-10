@@ -6,6 +6,7 @@ change it up
 
 change this
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
+i'm going through changes
 
 change it up
 change
