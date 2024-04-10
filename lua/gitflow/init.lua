@@ -87,6 +87,7 @@ local function push()
   vim.cmd(string.gsub('silent Git merge *', '*', opts.working_branch))
   vim.cmd 'Git push'
   vim.cmd(string.gsub('silent Git checkout *', '*', opts.working_branch))
+  commitbufwrite = false
 end
 
 local function quit()
@@ -102,7 +103,6 @@ local function quit()
   reset_plugin()
   if commitbufwrite then
     push()
-    commitbufwrite = false
   end
 end
 
