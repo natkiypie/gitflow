@@ -175,9 +175,9 @@ local function commit_with_action(action)
   create_push_autocmd()
   create_commit_autocmd(action)
   if opts.start_insert then
-    vim.cmd 'silent Git commit | startinsert'
+    vim.cmd 'Git commit | startinsert'
   else
-    vim.cmd 'silent Git commit'
+    vim.cmd 'Git commit'
   end
 end
 
@@ -398,9 +398,9 @@ end
 
 function Gitflow.commit()
   if opts.start_insert then
-    vim.cmd 'silent Git commit | startinsert'
+    vim.cmd 'Git commit | startinsert'
   else
-    vim.cmd 'silent Git commit'
+    vim.cmd 'Git commit'
   end
 end
 
