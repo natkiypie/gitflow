@@ -112,12 +112,17 @@ local function quit()
   -- end
 end
 
--- local function commit_finished(exit_code, _)
---   if exit_code == 0 then
---     print 'Commit successful'
---   else
---     print 'Commit failed'
---   end
+-- OKAY, THIS ONE WORKS... OR WE CAN WORK WITH IT.
+-- local function create_autocmd()
+--   vim.api.nvim_create_autocmd('BufWritePost', {
+--     pattern = 'COMMIT_EDITMSG',
+--     callback = function()
+--       vim.schedule(function()
+--         utils.clear_cmdline()
+--         print 'commit written'
+--       end)
+--     end,
+--   })
 -- end
 
 local function create_commit_autocmd(fn)
@@ -459,22 +464,51 @@ end
 
 -- TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING
 
--- OKAY, THIS ONE WORKS... OR WE CAN WORK WITH IT.
-local function create_autocmd()
-  vim.api.nvim_create_autocmd('BufWritePost', {
+local function commit_autocmd(fn)
+  local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
+  vim.api.nvim_create_autocmd('BufWinLeave', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
       vim.schedule(function()
-        utils.clear_cmdline()
-        print 'commit written'
+        fn()
+        -- if opts.push and fn == quit then
+        --   push()
+        -- end
       end)
+    end,
+    group = group,
+  })
+end
+
+local function create_autocmd(fn)
+  vim.api.nvim_create_autocmd('BufWritePost', {
+    pattern = 'COMMIT_EDITMSG',
+    callback = function()
+      if fn == 'test_quit' then
+        utils.clear_cmdline()
+        print 'true'
+      else
+        utils.clear_cmdline()
+        print 'false'
+      end
+      -- vim.schedule(function()
+      --   utils.clear_cmdline()
+      -- end)
     end,
   })
 end
 
+local function test_reinitialize()
+  print 'reinitialize list'
+end
+
+local function test_quit()
+  print 'quitting'
+end
+
 function Gitflow.print()
   -- print 'lo and behold'
-  create_autocmd()
+  create_autocmd(test_quit)
   vim.cmd 'Git commit'
 end
 
