@@ -10,6 +10,7 @@ Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint 
 Why is it so hard
 Why is it so hard to make it in America
 change
+is this it?
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
 i'm going through changes
 change it up
@@ -24,6 +25,7 @@ Why is it so hard
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
 i'm going through changes
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
+is this it?
 Why is it so hard to make it in America
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
 Why is it so hard

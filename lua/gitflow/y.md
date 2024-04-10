@@ -1,14 +1,18 @@
 change it up
 Why is it so hard
+is this it?
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
 Why is it so hard to make it in America
 change this
+is this it?
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
 i'm going through changes
+is this it?
 change it up
 
 change this
 Why is it so hard to make it in America
+is this it?
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.
 i'm going through changes
 
