@@ -2,7 +2,7 @@ local Gitflow = {}
 
 local utils = require 'utils'
 local config = require 'gitflow.config'
-local list, opts, orig, skipped_files
+local commitbufwrite, group, list, opts, orig, skipped_files
 
 local function plugin_state()
   local running = false
@@ -64,11 +64,6 @@ local function run(id)
 end
 
 local function delete_commit_augroup()
-  -- if vim.fn.exists '#GitflowCommit' == 1 then
-  --   vim.api.nvim_del_augroup_by_name 'GitflowCommit'
-  -- else
-  --   return
-  -- end
   if vim.fn.exists '#GitflowCommit' == 0 then
     return
   end
@@ -76,11 +71,10 @@ local function delete_commit_augroup()
 end
 
 local function delete_cursor_augroup()
-  if vim.fn.exists '#RestrictCursor' == 1 then
-    vim.api.nvim_del_augroup_by_name 'RestrictCursor'
-  else
+  if vim.fn.exists '#RestrictCursor' == 0 then
     return
   end
+  vim.api.nvim_del_augroup_by_name 'RestrictCursor'
 end
 
 local function return_file_settings()
@@ -106,35 +100,28 @@ local function quit()
   list = nil
   skipped_files = nil
   reset_plugin()
-  -- SMELL HERE
-  -- if opts.push then
-  --   push()
-  -- end
+  if commitbufwrite then
+    push()
+    commitbufwrite = false
+  end
 end
 
--- OKAY, THIS ONE WORKS... OR WE CAN WORK WITH IT.
--- local function create_autocmd()
---   vim.api.nvim_create_autocmd('BufWritePost', {
---     pattern = 'COMMIT_EDITMSG',
---     callback = function()
---       vim.schedule(function()
---         utils.clear_cmdline()
---         print 'commit written'
---       end)
---     end,
---   })
--- end
+local function create_push_autocmd()
+  vim.api.nvim_create_autocmd('BufWritePost', {
+    pattern = 'COMMIT_EDITMSG',
+    callback = function()
+      commitbufwrite = opts.push
+    end,
+    group = group,
+  })
+end
 
 local function create_commit_autocmd(fn)
-  local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   vim.api.nvim_create_autocmd('BufWinLeave', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
       vim.schedule(function()
         fn()
-        -- if opts.push and fn == quit then
-        --   push()
-        -- end
       end)
     end,
     group = group,
@@ -190,6 +177,8 @@ local function commit_with_action(action)
   if not opts.loop then
     action = quit
   end
+  group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
+  create_push_autocmd()
   create_commit_autocmd(action)
   if opts.start_insert then
     vim.cmd 'Git commit | startinsert'
@@ -464,58 +453,57 @@ end
 
 -- TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING
 
-local commitbufwrite = false
+-- local commitbufwrite = false
 
-local function test_reinitialize()
-  utils.clear_cmdline()
-  print 'reinitialize list'
-end
+-- local function test_reinitialize()
+--   utils.clear_cmdline()
+--   print 'reinitialize list'
+-- end
 
-local function test_push()
-  print 'pushing'
-end
+-- local function test_push()
+--   print 'pushing'
+-- end
 
-local function test_quit()
-  delete_commit_augroup()
-  utils.clear_cmdline()
-  print 'quitting'
-  if commitbufwrite then
-    test_push()
-  end
-end
+-- local function test_quit()
+--   delete_commit_augroup()
+--   utils.clear_cmdline()
+--   print 'quitting'
+--   if commitbufwrite then
+--     test_push()
+--   end
+--   commitbufwrite = false
+-- end
 
-local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
+-- local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
 
-local function commit_autocmd(fn)
-  vim.api.nvim_create_autocmd('BufWinLeave', {
-    pattern = 'COMMIT_EDITMSG',
-    callback = function()
-      vim.schedule(function()
-        fn()
-      end)
-    end,
-    group = group,
-  })
-end
+-- local function commit_autocmd(fn)
+--   vim.api.nvim_create_autocmd('BufWinLeave', {
+--     pattern = 'COMMIT_EDITMSG',
+--     callback = function()
+--       vim.schedule(function()
+--         fn()
+--       end)
+--     end,
+--     group = group,
+--   })
+-- end
 
-local function create_autocmd()
-  vim.api.nvim_create_autocmd('BufWritePost', {
-    pattern = 'COMMIT_EDITMSG',
-    callback = function()
-      commitbufwrite = opts.push
-      -- vim.schedule(function()
-      -- end)
-    end,
-    group = group,
-  })
-end
+-- local function create_autocmd()
+--   vim.api.nvim_create_autocmd('BufWritePost', {
+--     pattern = 'COMMIT_EDITMSG',
+--     callback = function()
+--       commitbufwrite = opts.push
+--     end,
+--     group = group,
+--   })
+-- end
 
 function Gitflow.print()
-  -- print 'lo and behold'
-  group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
-  create_autocmd()
-  commit_autocmd(test_quit)
-  vim.cmd 'Git commit'
+  print 'lo and behold'
+  -- group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
+  -- create_autocmd()
+  -- commit_autocmd(test_quit)
+  -- vim.cmd 'Git commit'
 end
 
 return Gitflow
