@@ -465,23 +465,30 @@ end
 -- TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING TESTING TESING TESTING TESTING
 
 local function test_reinitialize()
+  utils.clear_cmdline()
   print 'reinitialize list'
 end
 
 local function test_quit()
+  utils.clear_cmdline()
   print 'quitting'
 end
 
-local function commit_autocmd(fn)
+local function test_push()
+  print 'pushing'
+end
+
+local function commit_autocmd(fn, p)
   local group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   vim.api.nvim_create_autocmd('BufWinLeave', {
     pattern = 'COMMIT_EDITMSG',
     callback = function()
       vim.schedule(function()
+        if p then
+          fn()
+          return test_push()
+        end
         fn()
-        -- if opts.push and fn == quit then
-        --   push()
-        -- end
       end)
     end,
     group = group,
@@ -493,14 +500,11 @@ local function create_autocmd(fn)
     pattern = 'COMMIT_EDITMSG',
     callback = function()
       if fn == test_quit then
-        utils.clear_cmdline()
-        print 'true'
+        commit_autocmd(fn, opts.push)
       else
-        utils.clear_cmdline()
-        print 'false'
+        commit_autocmd(fn, false)
       end
       -- vim.schedule(function()
-      --   utils.clear_cmdline()
       -- end)
     end,
   })
