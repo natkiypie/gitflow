@@ -512,7 +512,7 @@ end
 
 function Gitflow.print()
   -- print 'lo and behold'
-  -- create_autocmd(test_quit)
+  group = vim.api.nvim_create_augroup('GitflowCommit', { clear = true })
   create_autocmd()
   commit_autocmd(test_quit)
   vim.cmd 'Git commit'
